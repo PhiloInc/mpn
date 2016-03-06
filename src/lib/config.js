@@ -2,7 +2,11 @@ import { readFileSync } from 'fs';
 
 const configuration = {
   logType: 'stdout',
-  origin: 'https://registry.npmjs.org',
+  origin: {
+    host: 'registry.npmjs.org',
+    port: 443,
+    protocol: 'https',
+  },
   port: 3002,
   mpnDir: '/opt/mpn/',
 };

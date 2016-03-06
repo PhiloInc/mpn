@@ -8,6 +8,7 @@ const server = new Hapi.Server();
 
 import Good from 'good';
 import GoodBunyan from 'good-bunyan';
+import h2o2 from 'h2o2';
 
 import Joi from 'joi';
 
@@ -81,6 +82,8 @@ const plugins = [{
       },
     }],
   },
+}, {
+  register: h2o2,
 }];
 
 server.register(plugins, (error) => {

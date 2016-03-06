@@ -1,22 +1,16 @@
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageMetadata');
 
-import createChain from '../lib/chain';
+import config from '../lib/config';
 
 import * as fileSystemReader from '../readers/file-system';
-import * as originReader from '../readers/origin';
-
-const metadataChain = createChain([
-  fileSystemReader.metadata,
-  originReader.metadata,
-]);
 
 export default async function handler(request, reply) {
   const packageName = request.params.name;
   try {
-    const metadata = await metadataChain(packageName);
+    const metadata = await fileSystemReader.metadata(packageName);
     if (metadata === null) {
-      return reply(`${packageName} not found`).code(404);
+      return reply.proxy(config.origin);
     }
     return reply(metadata);
   } catch (error) {
