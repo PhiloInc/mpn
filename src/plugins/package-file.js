@@ -24,7 +24,7 @@ function register(server, options, next) {
   server.route({
     method: 'GET',
     path: '/{name}/-/{file}',
-    handler: handler,
+    handler,
   });
 
   next();

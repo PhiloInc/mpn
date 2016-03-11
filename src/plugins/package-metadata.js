@@ -23,7 +23,7 @@ function register(server, options, next) {
   server.route({
     method: 'GET',
     path: '/{name}',
-    handler: handler,
+    handler,
   });
 
   next();

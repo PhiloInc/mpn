@@ -10,10 +10,9 @@ import Good from 'good';
 import GoodBunyan from 'good-bunyan';
 import h2o2 from 'h2o2';
 
-import Joi from 'joi';
-
 import packageMetadata from './plugins/package-metadata';
 import packageFile from './plugins/package-file';
+import userLogin from './plugins/user-login';
 
 server.connection({
   port: config.port,
@@ -59,6 +58,8 @@ const plugins = [{
   register: packageMetadata,
 }, {
   register: packageFile,
+}, {
+  register: userLogin,
 }];
 
 server.register(plugins, (error) => {

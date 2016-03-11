@@ -12,6 +12,7 @@ const configuration = {
 };
 
 const overrides = new Map([
+  ['MPN_DIR', 'mpnDir'],
   ['MPN_LOG', 'logType'],
   ['NPM_ORIGIN', 'origin'],
   ['PORT', 'port'],

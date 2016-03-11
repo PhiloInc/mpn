@@ -6,6 +6,7 @@ const logger = createLogger('fileSystemReader');
 
 import config from '../lib/config';
 
+// TODO DR: add support for 304 like behavior
 export function metadata(packageName) {
   const localFile = path.join(config.mpnDir, 'packages', packageName);
   logger.info(`metadata: ${localFile}`);
