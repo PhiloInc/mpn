@@ -12,40 +12,11 @@ import h2o2 from 'h2o2';
 
 import Joi from 'joi';
 
-import packageMetadata from './routes/package-metadata';
-import packageFile from './routes/package-file';
+import packageMetadata from './plugins/package-metadata';
+import packageFile from './plugins/package-file';
 
 server.connection({
   port: config.port,
-});
-
-// TODO: convert to plugins
-// TODO: share validator code
-server.route({
-  method: 'GET',
-  path: '/{name}',
-  handler: packageMetadata,
-  config: {
-    validate: {
-      params: {
-        name: Joi.string().regex(/^[-a-z0-9.]{1,214}$/),
-      },
-    },
-  },
-});
-
-server.route({
-  method: 'GET',
-  path: '/{name}/-/{file}',
-  handler: packageFile,
-  config: {
-    validate: {
-      params: {
-        name: Joi.string().regex(/^[-a-z0-9.]{1,214}$/),
-        file: Joi.string().regex(/^[-a-z0-9.]+$/),
-      },
-    },
-  },
 });
 
 const plugins = [{
@@ -84,6 +55,10 @@ const plugins = [{
   },
 }, {
   register: h2o2,
+}, {
+  register: packageMetadata,
+}, {
+  register: packageFile,
 }];
 
 server.register(plugins, (error) => {

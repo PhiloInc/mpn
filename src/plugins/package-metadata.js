@@ -5,7 +5,7 @@ import config from '../lib/config';
 
 import * as fileSystemReader from '../readers/file-system';
 
-export default async function handler(request, reply) {
+async function handler(request, reply) {
   const packageName = request.params.name;
   try {
     const metadata = await fileSystemReader.metadata(packageName);
@@ -18,3 +18,20 @@ export default async function handler(request, reply) {
     return reply(error);
   }
 }
+
+function register(server, options, next) {
+  server.route({
+    method: 'GET',
+    path: '/{name}',
+    handler: handler,
+  });
+
+  next();
+}
+
+register.attributes = {
+  name: 'package-metadata',
+  version: '1.0.0',
+};
+
+export default register;
