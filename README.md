@@ -2,17 +2,17 @@
 
 My Private NPM
 
-Overview
---------
+## Overview
 
-This project allows you to have your own npm registry.
+An easy way to publish and use private modules with npm while using another registry for public modules.
 
 The inspiration for this project comes from [elephant](https://github.com/dickeyxxx/elephant) which in turn was inspired by [sinopia](https://github.com/rlidwka/sinopia).
 
-Setup
------
+This project has only been tested with npm version 3.6.0.
 
-The default configuration stores files to the local file system.
+## Setup
+
+The default configuration uses the the local file system.
 
 ```
 $ git clone https://github.com/NeoPhi/mpn.git
@@ -28,13 +28,11 @@ Your registry is now setup and you should be able to test it:
 $ npm install lodash --registry http://localhost:3002
 ```
 
-Configuration
-------------
+## Configuration
 
 TODO
 
-npm commands supported
-----------------------
+## npm commands supported
 
 * `npm install`
 * `npm update`
@@ -42,10 +40,9 @@ npm commands supported
 * `npm whoami` (TODO)
 * `npm publish` (TODO)
 
-Authentication
---------------
+## Authentication
 
-The default authentication mechanism is htpasswd files.
+The default authentication mechanism is an htpasswd file.
 
 ```
 $ mkdir /tmp/mpn/authentication
@@ -64,3 +61,13 @@ danielr
 ```
 
 You can now use `npm publish` to publish packages.
+
+## Contributing
+
+Please note that this project is released with a [Contributor Code of Conduct](https://github.com/NeoPhi/mpn/blob/master/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+Bug reports and pull requests are welcome.
+
+## License
+
+[MIT](https://github.com/NeoPhi/mpn/blob/master/LICENSE)
