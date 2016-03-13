@@ -1,21 +1,25 @@
+import path from 'path';
+
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageFile');
 
 import config from '../lib/config';
 
-import * as fileSystemReader from '../readers/file-system';
+import * as storage from '../storage/file-system';
 
 async function handler(request, reply) {
   const packageName = request.params.name;
-  const fileName = request.params.file;
+  const file = request.params.file;
+  const fileName = path.join('files', packageName, file);
+  logger.info(packageName);
   try {
-    const file = await fileSystemReader.file(packageName, fileName);
-    if (file === null) {
+    const result = await storage.readStream(fileName);
+    if (!result.exists) {
       return reply.proxy(config.origin);
     }
-    return reply(file);
+    return reply(result.stream);
   } catch (error) {
-    logger.error(error, `Error loading ${packageName}`);
+    logger.error(error, `${packageName} error`);
     return reply(error);
   }
 }

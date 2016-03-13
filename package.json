@@ -41,6 +41,7 @@
     "hapi": "^13.0.0",
     "htpasswd-auth": "^2.0.0",
     "joi": "^8.0.4",
+    "mkdirp": "^0.5.1",
     "node-fetch": "^1.3.3",
     "node-uuid": "^1.4.7"
   }

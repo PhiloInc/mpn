@@ -1,20 +1,24 @@
+import path from 'path';
+
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageMetadata');
 
 import config from '../lib/config';
 
-import * as fileSystemReader from '../readers/file-system';
+import * as storage from '../storage/file-system';
 
 async function handler(request, reply) {
   const packageName = request.params.name;
+  logger.info(packageName);
   try {
-    const metadata = await fileSystemReader.metadata(packageName);
-    if (metadata === null) {
+    const fileName = path.join('packages', `${packageName}.json`);
+    const result = await storage.readFile(fileName);
+    if (!result.exists) {
       return reply.proxy(config.origin);
     }
-    return reply(metadata);
+    return reply(result.data).type('application/json');
   } catch (error) {
-    logger.error(error, `Error loading ${packageName}`);
+    logger.error(error, `${packageName} error`);
     return reply(error);
   }
 }

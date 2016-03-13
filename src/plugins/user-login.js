@@ -2,7 +2,7 @@ import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageFile');
 
 import { authenticate } from '../authentication/htpasswd';
-import { createToken } from '../authentication/tokens';
+import { createToken } from '../sessions/tokens-object';
 
 import Joi from 'joi';
 
