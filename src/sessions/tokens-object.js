@@ -27,3 +27,12 @@ export async function createToken(username) {
   await storage.writeFile(fileName, JSON.stringify(tokens, null, '  '));
   return token;
 }
+
+export async function findUsernameByToken(token) {
+  logger.info(token);
+  const tokens = await getTokens();
+  if (!tokens.hasOwnProperty(token)) {
+    return null;
+  }
+  return tokens[token].username;
+}

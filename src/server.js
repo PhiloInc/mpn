@@ -10,9 +10,11 @@ import Good from 'good';
 import GoodBunyan from 'good-bunyan';
 import h2o2 from 'h2o2';
 
+import npmToken from './plugins/npm-token';
 import packageMetadata from './plugins/package-metadata';
 import packageFile from './plugins/package-file';
 import userLogin from './plugins/user-login';
+import userIdentity from './plugins/user-identity';
 
 server.connection({
   port: config.port,
@@ -55,11 +57,15 @@ const plugins = [{
 }, {
   register: h2o2,
 }, {
+  register: npmToken,
+}, {
   register: packageMetadata,
 }, {
   register: packageFile,
 }, {
   register: userLogin,
+}, {
+  register: userIdentity,
 }];
 
 server.register(plugins, (error) => {
