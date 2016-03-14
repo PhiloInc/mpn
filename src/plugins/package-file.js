@@ -1,10 +1,10 @@
-import path from 'path';
 import Joi from 'joi';
 
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageFile');
 
 import { AUTH_STRATEGY } from './npm-token';
+import { filePath } from '../lib/packages';
 
 const optionsSchema = {
   alwaysAuth: Joi.boolean().required(),
@@ -13,7 +13,7 @@ const optionsSchema = {
 async function handler(request, reply) {
   const packageName = request.params.name;
   const file = request.params.file;
-  const fileName = path.join('files', packageName, file);
+  const fileName = filePath(packageName, file);
   logger.info(packageName);
   try {
     const result = await request.server.app.storage.readStream(fileName);
@@ -46,7 +46,6 @@ function register(server, options, next) {
 
 register.attributes = {
   name: 'package-file',
-  version: '1.0.0',
 };
 
 export default register;

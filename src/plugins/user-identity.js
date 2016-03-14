@@ -19,7 +19,6 @@ function register(server, options, next) {
 
 register.attributes = {
   name: 'user-identity',
-  version: '1.0.0',
 };
 
 export default register;

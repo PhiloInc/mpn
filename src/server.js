@@ -13,6 +13,7 @@ import h2o2 from 'h2o2';
 import npmToken from './plugins/npm-token';
 import packageMetadata from './plugins/package-metadata';
 import packageFile from './plugins/package-file';
+import packagePublish from './plugins/package-publish';
 import userLogin from './plugins/user-login';
 import userIdentity from './plugins/user-identity';
 
@@ -84,6 +85,8 @@ const plugins = [{
   options: {
     alwaysAuth: config.alwaysAuth,
   },
+}, {
+  register: packagePublish,
 }, {
   register: userLogin,
 }, {

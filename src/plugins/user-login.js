@@ -47,7 +47,6 @@ function register(server, options, next) {
 
 register.attributes = {
   name: 'user-login',
-  version: '1.0.0',
 };
 
 export default register;

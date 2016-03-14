@@ -39,7 +39,6 @@ function register(server, options, next) {
 
 register.attributes = {
   name: 'npm-token',
-  version: '1.0.0',
 };
 
 export default register;
