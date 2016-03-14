@@ -1,22 +1,19 @@
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageFile');
 
-import { authenticate } from '../authentication/htpasswd';
-import { createToken } from '../sessions/tokens-object';
-
 import Joi from 'joi';
 
 async function handler(request, reply) {
   const username = request.payload.name;
   const password = request.payload.password;
   try {
-    const success = await authenticate(username, password);
+    const success = await request.server.app.authentication.authenticate(username, password);
     if (!success) {
       logger.info(`Login failed for ${username}`);
       return reply(false).code(401);
     }
     logger.info(`Login success for ${username}`);
-    const token = await createToken(username);
+    const token = await request.server.app.sessions.createToken(username);
     logger.info(`Created ${token} for ${username}`);
     return reply({ token }).code(201);
   } catch (error) {

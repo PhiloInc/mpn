@@ -16,6 +16,22 @@ import packageFile from './plugins/package-file';
 import userLogin from './plugins/user-login';
 import userIdentity from './plugins/user-identity';
 
+import FileSystemStorage from './storage/file-system';
+import HtpasswdAuthentication from './authentication/htpasswd';
+import TokensObjectSessions from './sessions/tokens-object';
+
+const storage = new FileSystemStorage({
+  baseDirectory: config.mpnDir,
+});
+server.app.storage = storage;
+server.app.authentication = new HtpasswdAuthentication({
+  storage,
+});
+server.app.sessions = new TokensObjectSessions({
+  storage,
+});
+server.app.config = config;
+
 server.connection({
   port: config.port,
 });

@@ -1,9 +1,7 @@
-import createLogger from '../lib/logger-factory';
-const logger = createLogger('authenticationScheme');
-
 import Boom from 'boom';
 
-import { findUsernameByToken } from '../sessions/tokens-object';
+import createLogger from '../lib/logger-factory';
+const logger = createLogger('authenticationScheme');
 
 export const AUTH_SCHEME = 'npm-token';
 export const AUTH_STRATEGY = 'npmToken';
@@ -20,7 +18,7 @@ async function authenticate(request, reply) {
     return reply(Boom.badRequest('Authorization header invalid'));
   }
   const token = parts[1];
-  const username = await findUsernameByToken(token);
+  const username = await request.server.app.sessions.findUsernameByToken(token);
   if (username === null) {
     return reply(Boom.unauthorized('Token not found'));
   }

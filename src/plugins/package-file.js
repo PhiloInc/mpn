@@ -1,13 +1,14 @@
 import path from 'path';
+import Joi from 'joi';
 
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageFile');
 
 import { AUTH_STRATEGY } from './npm-token';
 
-import config from '../lib/config';
-
-import * as storage from '../storage/file-system';
+const optionsSchema = {
+  alwaysAuth: Joi.boolean().required(),
+};
 
 async function handler(request, reply) {
   const packageName = request.params.name;
@@ -15,9 +16,9 @@ async function handler(request, reply) {
   const fileName = path.join('files', packageName, file);
   logger.info(packageName);
   try {
-    const result = await storage.readStream(fileName);
+    const result = await request.server.app.storage.readStream(fileName);
     if (!result.exists) {
-      return reply.proxy(config.origin);
+      return reply.proxy(request.server.app.config.origin);
     }
     return reply(result.stream);
   } catch (error) {
@@ -27,6 +28,7 @@ async function handler(request, reply) {
 }
 
 function register(server, options, next) {
+  Joi.assert(options, optionsSchema);
   const route = {
     method: 'GET',
     path: '/{name}/-/{file}',
