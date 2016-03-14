@@ -3,6 +3,8 @@ import path from 'path';
 import createLogger from '../lib/logger-factory';
 const logger = createLogger('packageMetadata');
 
+import { AUTH_STRATEGY } from './npm-token';
+
 import config from '../lib/config';
 
 import * as storage from '../storage/file-system';
@@ -24,11 +26,17 @@ async function handler(request, reply) {
 }
 
 function register(server, options, next) {
-  server.route({
+  const route = {
     method: 'GET',
     path: '/{name}',
     handler,
-  });
+  };
+  if (options.alwaysAuth) {
+    route.config = {
+      auth: AUTH_STRATEGY,
+    };
+  }
+  server.route(route);
 
   next();
 }

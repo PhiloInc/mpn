@@ -60,8 +60,14 @@ const plugins = [{
   register: npmToken,
 }, {
   register: packageMetadata,
+  options: {
+    alwaysAuth: config.alwaysAuth,
+  },
 }, {
   register: packageFile,
+  options: {
+    alwaysAuth: config.alwaysAuth,
+  },
 }, {
   register: userLogin,
 }, {

@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 
 const configuration = {
+  alwaysAuth: false,
   logType: 'stdout',
   origin: {
     host: 'registry.npmjs.org',
@@ -12,6 +13,7 @@ const configuration = {
 };
 
 const overrides = new Map([
+  ['ALWAYS_AUTH', 'alwaysAuth'],
   ['MPN_DIR', 'mpnDir'],
   ['MPN_LOG', 'logType'],
   ['NPM_ORIGIN', 'origin'],

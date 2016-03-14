@@ -1,3 +1,5 @@
+import { AUTH_STRATEGY } from './npm-token';
+
 async function handler(request, reply) {
   return reply(request.auth.credentials);
 }
@@ -8,7 +10,7 @@ function register(server, options, next) {
     path: '/-/whoami',
     handler,
     config: {
-      auth: 'npmToken',
+      auth: AUTH_STRATEGY,
     },
   });
 

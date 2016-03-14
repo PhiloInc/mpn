@@ -5,6 +5,9 @@ import Boom from 'boom';
 
 import { findUsernameByToken } from '../sessions/tokens-object';
 
+export const AUTH_SCHEME = 'npm-token';
+export const AUTH_STRATEGY = 'npmToken';
+
 async function authenticate(request, reply) {
   const authorization = request.raw.req.headers.authorization;
   logger.info(authorization);
@@ -31,8 +34,8 @@ function scheme() {
 }
 
 function register(server, options, next) {
-  server.auth.scheme('npm-token', scheme);
-  server.auth.strategy('npmToken', 'npm-token');
+  server.auth.scheme(AUTH_SCHEME, scheme);
+  server.auth.strategy(AUTH_STRATEGY, AUTH_SCHEME);
   next();
 }
 
