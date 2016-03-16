@@ -4,13 +4,15 @@ My Private NPM
 
 ## Overview
 
-An easy way to publish and use private modules with npm while using another registry for public modules.
+An easy way to publish and use private modules with `npm` while using another registry for public modules.
 
 The inspiration for this project comes from [elephant](https://github.com/dickeyxxx/elephant) which in turn was inspired by [sinopia](https://github.com/rlidwka/sinopia).
 
-This project has only been tested with `node` v5.6.0 and `npm` v3.6.0.
+To date this project has only been tested with `node` v5.6.0 and `npm` v3.6.0.
 
 The server is designed to be extended with additional options for data storage, authentication, and session management but at present only a MVP has been implemented. [Contributions welcome](#contributing).
+
+NB: The server does not lock operations so there maybe race conditions for login and publish.
 
 ## Setup
 
@@ -39,7 +41,7 @@ $ cd ../mymodule
 $ npm publish --registry http://localhost:3002
 ```
 
-To precompile the code for running in a production environment:
+To compile the code for running in a production environment:
 
 ```
 $ npm run dist
@@ -94,6 +96,15 @@ Additionally the following environment variables will override any previously se
 * `npm login`
 * `npm whoami`
 * `npm publish`
+
+## TODO
+
+- [ ] Write tests
+- [ ] Verify it works with additional npm versions
+- [ ] ETag support for locally published modules
+- [ ] Support for mirroring the upstream
+- [ ] S3 based storage implementation
+- [ ] Redis based sessions implementation
 
 ## Contributing
 
