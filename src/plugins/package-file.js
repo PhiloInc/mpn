@@ -28,16 +28,11 @@ function createHandler({ logger: parentLogger, storage, origin }) {
     const file = request.params.file;
     const fileName = filePath(packageName, file);
     logger.info(packageName);
-    try {
-      const result = await storage.readStream(fileName);
-      if (!result.exists) {
-        return reply.proxy(origin);
-      }
-      return reply(result.stream);
-    } catch (error) {
-      logger.error(error, `${packageName} error`);
-      return reply(error);
+    const result = await storage.readStream(fileName);
+    if (!result.exists) {
+      return reply.proxy(origin);
     }
+    return reply(result.stream);
   };
 }
 

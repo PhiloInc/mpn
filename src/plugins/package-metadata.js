@@ -26,17 +26,12 @@ function createHandler({ logger: parentLogger, storage, origin }) {
   return async function handler(request, reply) {
     const packageName = request.params.name;
     logger.info(packageName);
-    try {
-      const fileName = metadataPath(packageName);
-      const result = await storage.readFile(fileName);
-      if (!result.exists) {
-        return reply.proxy(origin);
-      }
-      return reply(result.data).type('application/json');
-    } catch (error) {
-      logger.error(error, `${packageName} error`);
-      return reply(error);
+    const fileName = metadataPath(packageName);
+    const result = await storage.readFile(fileName);
+    if (!result.exists) {
+      return reply.proxy(origin);
     }
+    return reply(result.data).type('application/json');
   };
 }
 

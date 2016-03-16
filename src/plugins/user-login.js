@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import Boom from 'boom';
 
 import { LOGGER_SCHEMA, SESSIONS_SCHEMA, AUTHENTICATION_SCHEMA } from '../lib/schema';
 
@@ -18,20 +19,15 @@ function createHandler({ logger: parentLogger, authentication, sessions }) {
   return async function handler(request, reply) {
     const username = request.payload.name;
     const password = request.payload.password;
-    try {
-      const success = await authentication.authenticate(username, password);
-      if (!success) {
-        logger.info(`Login failed for ${username}`);
-        return reply(false).code(401);
-      }
-      logger.info(`Login success for ${username}`);
-      const token = await sessions.createToken(username);
-      logger.info(`Created ${token} for ${username}`);
-      return reply({ token }).code(201);
-    } catch (error) {
-      logger.error(error, `Error with login for ${username}`);
-      return reply(error);
+    const success = await authentication.authenticate(username, password);
+    if (!success) {
+      logger.info(`${username} login failed`);
+      return reply(Boom.unauthorized());
     }
+    logger.info(`${username} login success`);
+    const token = await sessions.createToken(username);
+    logger.info(`${username} created token ${token}`);
+    return reply({ token }).code(201);
   };
 }
 
