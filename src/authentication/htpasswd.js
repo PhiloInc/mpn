@@ -2,28 +2,29 @@ import path from 'path';
 import htpasswd from 'htpasswd-auth';
 import Joi from 'joi';
 
-import Authentication from './authentication';
-import Storage from '../storage/storage';
+import { LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
 
-import createLogger from '../lib/logger-factory';
-const logger = createLogger('htpasswdAuthentication');
+const NAME = 'htpasswd';
 
-const fileName = path.join('authentication', 'htpasswd');
+const FILE_NAME = path.join('authentication', 'htpasswd');
 
-const optionsSchema = {
-  storage: Joi.object().type(Storage).required(),
+const OPTIONS_SCHEMA = {
+  logger: LOGGER_SCHEMA,
+  storage: STORAGE_SCHEMA,
 };
 
-export default class HtpasswdAuthentication extends Authentication {
+export default class HtpasswdAuthentication {
   constructor(options) {
-    super(options);
-    Joi.assert(options, optionsSchema);
+    Joi.assert(options, OPTIONS_SCHEMA);
+    this.logger = options.logger.child({
+      context: NAME,
+    });
     this.storage = options.storage;
   }
 
   async authenticate(username, password) {
-    logger.info(username);
-    const result = await this.storage.readFile(fileName);
+    this.logger.info(username);
+    const result = await this.storage.readFile(FILE_NAME);
     if (!result.exists) {
       return false;
     }

@@ -1,7 +1,8 @@
-import config from './lib/config';
+import config from './config';
 
-import createLogger from './lib/logger-factory';
-const logger = createLogger('server');
+const logger = config.logger.child({
+  context: 'server',
+});
 
 import Hapi from 'hapi';
 const server = new Hapi.Server();
@@ -16,22 +17,6 @@ import packageFile from './plugins/package-file';
 import packagePublish from './plugins/package-publish';
 import userLogin from './plugins/user-login';
 import userIdentity from './plugins/user-identity';
-
-import FileSystemStorage from './storage/file-system';
-import HtpasswdAuthentication from './authentication/htpasswd';
-import TokensObjectSessions from './sessions/tokens-object';
-
-const storage = new FileSystemStorage({
-  baseDirectory: config.mpnDir,
-});
-server.app.storage = storage;
-server.app.authentication = new HtpasswdAuthentication({
-  storage,
-});
-server.app.sessions = new TokensObjectSessions({
-  storage,
-});
-server.app.config = config;
 
 server.connection({
   port: config.port,
@@ -75,20 +60,39 @@ const plugins = [{
   register: h2o2,
 }, {
   register: npmToken,
+  options: {
+    logger: config.logger,
+    sessions: config.sessions,
+  },
 }, {
   register: packageMetadata,
   options: {
     alwaysAuth: config.alwaysAuth,
+    logger: config.logger,
+    storage: config.storage,
+    origin: config.origin,
   },
 }, {
   register: packageFile,
   options: {
     alwaysAuth: config.alwaysAuth,
+    logger: config.logger,
+    storage: config.storage,
+    origin: config.origin,
   },
 }, {
   register: packagePublish,
+  options: {
+    logger: config.logger,
+    storage: config.storage,
+  },
 }, {
   register: userLogin,
+  options: {
+    logger: config.logger,
+    sessions: config.sessions,
+    authentication: config.authentication,
+  },
 }, {
   register: userIdentity,
 }];

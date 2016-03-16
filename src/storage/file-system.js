@@ -3,20 +3,22 @@ import path from 'path';
 import mkdirp from 'mkdirp';
 import Joi from 'joi';
 
-import Storage from './storage';
+import { LOGGER_SCHEMA, BASE_DIRECTORY_SCHEMA } from '../lib/schema';
 
-import createLogger from '../lib/logger-factory';
-const logger = createLogger('fileSystemStorage');
+const NAME = 'file-system';
 
-const optionsSchema = {
-  baseDirectory: Joi.string().required(),
+const OPTIONS_SCHEMA = {
+  logger: LOGGER_SCHEMA,
+  baseDirectory: BASE_DIRECTORY_SCHEMA,
 };
 
-export default class FileSystemStorage extends Storage {
+export default class FileSystemStorage {
   constructor(options) {
-    super(options);
-    Joi.assert(options, optionsSchema);
+    Joi.assert(options, OPTIONS_SCHEMA);
     this.baseDirectory = options.baseDirectory;
+    this.logger = options.logger.child({
+      context: NAME,
+    });
   }
 
   _createFullPath(fileName) {
@@ -37,17 +39,17 @@ export default class FileSystemStorage extends Storage {
 
   readFile(fileName) {
     const fullPath = this._createFullPath(fileName);
-    logger.info(fullPath);
+    this.logger.info(fullPath);
     return new Promise((resolve, reject) => {
       fs.readFile(fullPath, (error, data) => {
         if (error) {
           if (error.code === 'ENOENT') {
-            logger.info(`${fullPath} not found`);
+            this.logger.info(`${fullPath} not found`);
             return resolve({
               exists: false,
             });
           }
-          logger.error(error, `${fullPath} error`);
+          this.logger.error(error, `${fullPath} error`);
           return reject(error);
         }
         return resolve({
@@ -60,7 +62,7 @@ export default class FileSystemStorage extends Storage {
 
   readStream(fileName) {
     const fullPath = this._createFullPath(fileName);
-    logger.info(fullPath);
+    this.logger.info(fullPath);
     return new Promise((resolve, reject) => {
       const fileStream = fs.createReadStream(fullPath);
       fileStream.on('open', () => resolve({
@@ -69,12 +71,12 @@ export default class FileSystemStorage extends Storage {
       }));
       fileStream.on('error', (error) => {
         if (error.code === 'ENOENT') {
-          logger.info(`${fullPath} not found`);
+          this.logger.info(`${fullPath} not found`);
           return resolve({
             exists: false,
           });
         }
-        logger.error(error, `${fullPath} error`);
+        this.logger.error(error, `${fullPath} error`);
         return reject(error);
       });
     });
@@ -82,11 +84,11 @@ export default class FileSystemStorage extends Storage {
 
   async writeFile(fileName, data) {
     const fullPath = this._createFullPath(fileName);
-    logger.info(fullPath);
+    this.logger.info(fullPath);
     return this._createDirectory(fullPath).then(() => new Promise((resolve, reject) => {
       fs.writeFile(fullPath, data, (error) => {
         if (error) {
-          logger.error(error, `${fullPath} error`);
+          this.logger.error(error, `${fullPath} error`);
           return reject(error);
         }
         return resolve();

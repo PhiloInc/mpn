@@ -1,37 +1,52 @@
 import Joi from 'joi';
 
-import createLogger from '../lib/logger-factory';
-const logger = createLogger('packageMetadata');
-
 import { AUTH_STRATEGY } from './npm-token';
 import { metadataPath } from '../lib/packages';
+import {
+  ALWAYS_AUTH_SCHEMA,
+  LOGGER_SCHEMA,
+  ORIGIN_SCHEMA,
+  STORAGE_SCHEMA,
+} from '../lib/schema';
 
-const optionsSchema = {
-  alwaysAuth: Joi.boolean().required(),
+const NAME = 'package-metadata';
+
+const OPTIONS_SCHEMA = {
+  alwaysAuth: ALWAYS_AUTH_SCHEMA,
+  logger: LOGGER_SCHEMA,
+  storage: STORAGE_SCHEMA,
+  origin: ORIGIN_SCHEMA,
 };
 
-async function handler(request, reply) {
-  const packageName = request.params.name;
-  logger.info(packageName);
-  try {
-    const fileName = metadataPath(packageName);
-    const result = await request.server.app.storage.readFile(fileName);
-    if (!result.exists) {
-      return reply.proxy(request.server.app.config.origin);
+function createHandler({ logger: parentLogger, storage, origin }) {
+  const logger = parentLogger.child({
+    context: NAME,
+  });
+
+  return async function handler(request, reply) {
+    const packageName = request.params.name;
+    logger.info(packageName);
+    try {
+      const fileName = metadataPath(packageName);
+      const result = await storage.readFile(fileName);
+      if (!result.exists) {
+        return reply.proxy(origin);
+      }
+      return reply(result.data).type('application/json');
+    } catch (error) {
+      logger.error(error, `${packageName} error`);
+      return reply(error);
     }
-    return reply(result.data).type('application/json');
-  } catch (error) {
-    logger.error(error, `${packageName} error`);
-    return reply(error);
-  }
+  };
 }
 
 function register(server, options, next) {
-  Joi.assert(options, optionsSchema);
+  Joi.assert(options, OPTIONS_SCHEMA);
+
   const route = {
     method: 'GET',
     path: '/{name}',
-    handler,
+    handler: createHandler(options),
   };
   if (options.alwaysAuth) {
     route.config = {
@@ -44,7 +59,7 @@ function register(server, options, next) {
 }
 
 register.attributes = {
-  name: 'package-metadata',
+  name: NAME,
 };
 
 export default register;

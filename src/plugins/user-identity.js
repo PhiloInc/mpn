@@ -1,5 +1,7 @@
 import { AUTH_STRATEGY } from './npm-token';
 
+const NAME = 'user-identity';
+
 async function handler(request, reply) {
   return reply(request.auth.credentials);
 }
@@ -18,7 +20,7 @@ function register(server, options, next) {
 }
 
 register.attributes = {
-  name: 'user-identity',
+  name: NAME,
 };
 
 export default register;
