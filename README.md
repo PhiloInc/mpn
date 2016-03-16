@@ -10,57 +10,83 @@ The inspiration for this project comes from [elephant](https://github.com/dickey
 
 This project has only been tested with npm version 3.6.0.
 
+The server is designed to be extended with additional options for data storage, authentication, and session management but at present only a MVP has been implemented. [Contributions welcome](#Contributing).
+
 ## Setup
 
-The default configuration uses the the local file system.
+The default configuration requires authentication (using an htpasswd file) and uses the the local file system (storing data under /opt/mpn).
 
 ```
 $ git clone https://github.com/NeoPhi/mpn.git
 $ cd mpn
 $ npm install
-$ mkdir /tmp/mpn
-$ env MPN_DIR=/tmp/mpn npm start
+$ mkdir -p /opt/mpn/authentication
+$ htpasswd -nB USERNAME > /opt/mpn/authentication/htpasswd
+$ npm start
 ```
 
-Your registry is now setup and you should be able to test it:
+The registry is now setup and you should be able to login and use it. `npm` will store a login token in `~/.npmrc`. `npm` requires an email but `mpn` ignores it.
 
 ```
+$ npm login --registry http://localhost:3002
+Username: USERNAME
+Password:
+Email: (this IS public) IGNORED
+$ npm whoami --registry http://localhost:3002
+USERNAME
 $ npm install lodash --registry http://localhost:3002
+$ cd ../mymodule
+$ npm publish --registry http://localhost:3002
 ```
 
 ## Configuration
 
-TODO
+To avoid needing to specify `--registry` with every command you can use [`npm config`](https://docs.npmjs.com/misc/config) to set it as a default.
 
-## npm commands supported
+To override `mpn` defaults create an `overrides.json` file and startup the server setting a `MPN_OVERRIDES` environment variable:
+
+```
+$ env MPN_OVERRIDES=/path/overrides.json npm start
+```
+
+Values that can be specified in the overrides file include:
+
+* alwaysAuth
+** boolean (default: true)
+** all operations require a user to be logged in
+* baseDirectory
+** string (default: '/opt/mpn')
+** base directory for storing files
+* logType
+** string (default: 'stdout')
+** `stdout` will use STDOUT, any other value will be treated as a path and a log file created
+* origin
+** object with following keys
+** host
+*** string (default: 'registry.npmjs.org')
+*** host of upstream NPM registry
+** port
+*** integer (default: 443)
+*** port of upstream NPM registry
+** protocol
+*** string (default: 'https')
+*** protocol of upstream NPM registry
+* port
+** integer (default: 3002)
+** port server will run on
+
+Additionally the following environment variables will override any previously set value
+
+* PORT
+** port server will run on
+
+## Supported commands
 
 * `npm install`
 * `npm update`
 * `npm login`
-* `npm whoami` (TODO)
-* `npm publish` (TODO)
-
-## Authentication
-
-The default authentication mechanism is an htpasswd file.
-
-```
-$ mkdir /tmp/mpn/authentication
-$ htpasswd -nB YOURUSERNAME >> /tmp/mpn/authentication
-```
-
-Then you can login with npm, which stores the credentials in `~/.npmrc`. The CLI login process requires an email but mpn ignores it.
-
-```
-$ npm login --registry http://localhost:3002
-Username: danielr
-Password:
-Email: (this IS public) danielr@neophi.com
-$ npm whoami --registry http://localhost:3002
-danielr
-```
-
-You can now use `npm publish` to publish packages.
+* `npm whoami`
+* `npm publish`
 
 ## Contributing
 
