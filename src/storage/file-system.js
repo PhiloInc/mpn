@@ -44,7 +44,7 @@ export default class FileSystemStorage {
       fs.readFile(fullPath, (error, data) => {
         if (error) {
           if (error.code === 'ENOENT') {
-            this.logger.info(`${fullPath} not found`);
+            this.logger.warn(`${fullPath} not found`);
             return resolve({
               exists: false,
             });
@@ -71,7 +71,7 @@ export default class FileSystemStorage {
       }));
       fileStream.on('error', (error) => {
         if (error.code === 'ENOENT') {
-          this.logger.info(`${fullPath} not found`);
+          this.logger.warn(`${fullPath} not found`);
           return resolve({
             exists: false,
           });
