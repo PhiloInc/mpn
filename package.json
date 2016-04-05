@@ -7,7 +7,7 @@
     "dist": "babel src -d dist",
     "coverage": "babel-node node_modules/isparta/bin/isparta cover --report text --report html test/run.js",
     "pretest": "eslint src/ test/",
-    "start": "babel-node src/server.js",
+    "start": "babel-node src/server.js | bunyan",
     "test": "babel-node test/run.js"
   },
   "repository": {

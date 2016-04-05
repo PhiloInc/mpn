@@ -14,6 +14,7 @@ const options = {
     host: 'registry.npmjs.org',
     port: 443,
     protocol: 'https',
+    passThrough: true,
   },
   port: 3002,
   storageType: 'FileSystem',

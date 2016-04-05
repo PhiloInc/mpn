@@ -25,4 +25,4 @@ export const ORIGIN_SCHEMA = Joi.object().keys({
   host: Joi.string().required(),
   port: Joi.number().integer().required(),
   protocol: Joi.string().required(),
-}).required();
+}).unknown(true);
