@@ -20,6 +20,7 @@ const options = {
   storageType: 'FileSystem',
   authenticationType: 'Htpasswd',
   sessionsType: 'TokensObject',
+  umask: 0o0022,
 };
 
 const OVERRIDES_FILE = process.env.MPN_OVERRIDES;

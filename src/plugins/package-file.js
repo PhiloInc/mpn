@@ -41,7 +41,7 @@ function register(server, options, next) {
 
   const route = {
     method: 'GET',
-    path: '/{name}/-/{file}',
+    path: '/{name*2}/-/{file*2}',
     handler: createHandler(options),
   };
   if (options.alwaysAuth) {

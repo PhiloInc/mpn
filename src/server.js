@@ -18,6 +18,8 @@ import packagePublish from './plugins/package-publish';
 import userLogin from './plugins/user-login';
 import userIdentity from './plugins/user-identity';
 
+logger.info('umask %s', process.umask(config.umask));
+
 server.connection({
   port: config.port,
 });
