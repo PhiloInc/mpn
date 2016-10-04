@@ -1,5 +1,6 @@
 import Boom from 'boom';
 import Joi from 'joi';
+import { has } from 'lodash';
 
 import { AUTH_STRATEGY } from './npm-token';
 import { metadataPath, filePath } from '../lib/packages';
@@ -34,7 +35,7 @@ function createHandler({ logger: parentLogger, storage }) {
       const existing = JSON.parse(result.data);
       const version = request.payload['dist-tags'].latest;
       logger.info(`${packageName} ${version}`);
-      if (existing.versions.hasOwnProperty(version)) {
+      if (has(existing.versions, version)) {
         return reply(Boom.conflict(`${packageName} ${version} alreasy exists`));
       }
       metadata.versions = {

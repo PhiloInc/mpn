@@ -1,22 +1,21 @@
-import config from './config';
-
-const logger = config.logger.child({
-  context: 'server',
-});
-
 import Hapi from 'hapi';
-const server = new Hapi.Server();
-
 import Good from 'good';
 import GoodBunyan from 'good-bunyan';
 import h2o2 from 'h2o2';
 
+import config from './config';
 import npmToken from './plugins/npm-token';
 import packageMetadata from './plugins/package-metadata';
 import packageFile from './plugins/package-file';
 import packagePublish from './plugins/package-publish';
 import userLogin from './plugins/user-login';
 import userIdentity from './plugins/user-identity';
+
+const server = new Hapi.Server();
+
+const logger = config.logger.child({
+  context: 'server',
+});
 
 logger.info('umask %s', process.umask(config.umask));
 

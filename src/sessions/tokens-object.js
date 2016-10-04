@@ -1,6 +1,7 @@
 import path from 'path';
 import uuid from 'node-uuid';
 import Joi from 'joi';
+import { has } from 'lodash';
 
 import { LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
 
@@ -45,7 +46,7 @@ export default class TokensObjectSessions {
   async findUsernameByToken(token) {
     this.logger.info(token);
     const tokens = await this._getTokens();
-    if (!tokens.hasOwnProperty(token)) {
+    if (!has(tokens, token)) {
       return null;
     }
     return tokens[token].username;

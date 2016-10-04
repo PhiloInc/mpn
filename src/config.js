@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-
+import { has } from 'lodash';
 import bunyan from 'bunyan';
 
 import FileSystemStorage from './storage/file-system';
@@ -45,7 +45,7 @@ const environmentMappings = new Map([
 ]);
 
 for (const [source, { destination, conversion }] of environmentMappings) {
-  if (process.env.hasOwnProperty(source)) {
+  if (has(process.env, source)) {
     options[destination] = conversion(process.env[source]);
   }
 }
