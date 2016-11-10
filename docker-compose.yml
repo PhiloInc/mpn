@@ -1,0 +1,13 @@
+version: '2'
+
+volumes:
+  mpn-node-modules: {}
+
+services:
+  mpn:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/home/app/src/mpn
+      - mpn-node-modules:/home/app/src/mpn/node_modules
