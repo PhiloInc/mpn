@@ -1,5 +1,5 @@
 import path from 'path';
-import uuid from 'node-uuid';
+import uuid from 'uuid';
 import Joi from 'joi';
 import { has } from 'lodash';
 

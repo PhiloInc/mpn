@@ -1,5 +1,7 @@
 import Joi from 'joi';
 
+export const FORCE_HTTPS_SCHEMA = Joi.boolean().required();
+
 export const ALWAYS_AUTH_SCHEMA = Joi.boolean().required();
 
 export const BASE_DIRECTORY_SCHEMA = Joi.string().required();

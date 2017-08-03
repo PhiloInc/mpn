@@ -21,6 +21,7 @@ const options = {
   authenticationType: 'Htpasswd',
   sessionsType: 'TokensObject',
   umask: 0o0022,
+  forceHTTPS: true,
 };
 
 const OVERRIDES_FILE = process.env.MPN_OVERRIDES;
@@ -98,6 +99,7 @@ const configuration = {
   storage,
   authentication,
   sessions,
+  forceHTTPS: options.forceHTTPS,
 };
 
 export default configuration;

@@ -4,16 +4,17 @@ import { has } from 'lodash';
 
 import { AUTH_STRATEGY } from './npm-token';
 import { metadataPath, filePath } from '../lib/packages';
-import { LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
+import { LOGGER_SCHEMA, STORAGE_SCHEMA, FORCE_HTTPS_SCHEMA } from '../lib/schema';
 
 const NAME = 'package-publish';
 
 const OPTIONS_SCHEMA = {
   logger: LOGGER_SCHEMA,
   storage: STORAGE_SCHEMA,
+  forceHTTPS: FORCE_HTTPS_SCHEMA,
 };
 
-function createHandler({ logger: parentLogger, storage }) {
+function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
   const logger = parentLogger.child({
     context: NAME,
   });
@@ -29,6 +30,16 @@ function createHandler({ logger: parentLogger, storage }) {
     };
     delete metadata._attachments;
 
+    // If packages should be pulled via HTTPS force URL scheme
+    if (forceHTTPS) {
+      Object.keys(metadata.versions).forEach(key => {
+        const versionData = metadata.versions[key];
+        if (versionData.dist && versionData.dist.tarball) {
+          versionData.dist.tarball = versionData.dist.tarball.replace(/^http:/, 'https:');
+        }
+      });
+    }
+
     const metadataFileName = metadataPath(packageName);
     const result = await storage.readFile(metadataFileName);
     if (result.exists) {
@@ -36,7 +47,7 @@ function createHandler({ logger: parentLogger, storage }) {
       const version = request.payload['dist-tags'].latest;
       logger.info(`${packageName} ${version}`);
       if (has(existing.versions, version)) {
-        return reply(Boom.conflict(`${packageName} ${version} alreasy exists`));
+        return reply(Boom.conflict(`${packageName} ${version} already exists`));
       }
       metadata.versions = {
         ...existing.versions,

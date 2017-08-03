@@ -86,6 +86,7 @@ const plugins = [{
   options: {
     logger: config.logger,
     storage: config.storage,
+    forceHTTPS: config.forceHTTPS,
   },
 }, {
   register: userLogin,
