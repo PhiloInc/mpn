@@ -44,11 +44,17 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
     const result = await storage.readFile(metadataFileName);
     if (result.exists) {
       const existing = JSON.parse(result.data);
-      const version = request.payload['dist-tags'].latest;
-      logger.info(`${packageName} ${version}`);
-      if (has(existing.versions, version)) {
-        return reply(Boom.conflict(`${packageName} ${version} already exists`));
+      for (const tag of Object.keys(request.payload['dist-tags'])) {
+        const version = request.payload['dist-tags'][tag];
+        logger.info(`${packageName} ${version} ${tag} `);
+        if (has(existing.versions, version)) {
+          return reply(Boom.conflict(`${packageName} ${version} ${tag} already exists`));
+        }
       }
+      metadata['dist-tags'] = {
+        ...existing['dist-tags'],
+        ...metadata['dist-tags'],
+      };
       metadata.versions = {
         ...existing.versions,
         ...metadata.versions,
