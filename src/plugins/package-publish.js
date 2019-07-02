@@ -1,10 +1,9 @@
-import Boom from 'boom';
-import Joi from 'joi';
+import Boom from '@hapi/boom';
+import Joi from '@hapi/joi';
 import { has } from 'lodash';
-
+import { filePath, metadataPath } from '../lib/packages';
+import { FORCE_HTTPS_SCHEMA, LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
 import { AUTH_STRATEGY } from './npm-token';
-import { metadataPath, filePath } from '../lib/packages';
-import { LOGGER_SCHEMA, STORAGE_SCHEMA, FORCE_HTTPS_SCHEMA } from '../lib/schema';
 
 const NAME = 'package-publish';
 
@@ -19,11 +18,12 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
     context: NAME,
   });
 
-  return async function handler(request, reply) {
+  return async function handler(request, response) {
     const packageName = request.params.name;
     logger.info(packageName);
     if (packageName !== request.payload.name) {
-      return reply(Boom.badRequest(`${packageName} didn't match ${request.payload.name}`));
+      logger.error(`${packageName} didn't match ${request.payload.name}`);
+      throw Boom.badRequest(`${packageName} didn't match ${request.payload.name}`);
     }
     const metadata = {
       ...request.payload,
@@ -44,11 +44,13 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
     const result = await storage.readFile(metadataFileName);
     if (result.exists) {
       const existing = JSON.parse(result.data);
+      // eslint-disable-next-line no-restricted-syntax
       for (const tag of Object.keys(request.payload['dist-tags'])) {
         const version = request.payload['dist-tags'][tag];
         logger.info(`${packageName} ${version} ${tag} `);
         if (has(existing.versions, version)) {
-          return reply(Boom.conflict(`${packageName} ${version} ${tag} already exists`));
+          logger.error(`${packageName} ${version} ${tag} already exists`);
+          throw Boom.conflict(`${packageName} ${version} ${tag} already exists`);
         }
       }
       metadata['dist-tags'] = {
@@ -62,19 +64,21 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
     }
 
     const attachments = request.payload._attachments;
+    // eslint-disable-next-line no-restricted-syntax
     for (const file of Object.keys(attachments)) {
       const fileName = filePath(packageName, file);
-      const data = new Buffer(attachments[file].data, 'base64');
+      const data = Buffer.from(attachments[file].data, 'base64');
+      // eslint-disable-next-line no-await-in-loop
       await storage.writeFile(fileName, data);
     }
 
     const json = JSON.stringify(metadata, null, '  ');
     await storage.writeFile(metadataFileName, json);
-    return reply(json).type('application/json');
+    return response.response(json).type('application/json');
   };
 }
 
-function register(server, options, next) {
+async function register(server, options) {
   Joi.assert(options, OPTIONS_SCHEMA);
 
   server.route({
@@ -96,12 +100,9 @@ function register(server, options, next) {
       },
     },
   });
-
-  next();
 }
 
-register.attributes = {
+export default {
   name: NAME,
+  register,
 };
-
-export default register;

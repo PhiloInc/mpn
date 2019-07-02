@@ -1,8 +1,7 @@
+import Joi from '@hapi/joi';
+import { has } from 'lodash';
 import path from 'path';
 import uuid from 'uuid';
-import Joi from 'joi';
-import { has } from 'lodash';
-
 import { LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
 
 const NAME = 'tokens-object';

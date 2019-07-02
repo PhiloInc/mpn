@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 
 import { LOGGER_SCHEMA, BASE_DIRECTORY_SCHEMA } from '../lib/schema';
 
@@ -11,6 +11,18 @@ const OPTIONS_SCHEMA = {
   logger: LOGGER_SCHEMA,
   baseDirectory: BASE_DIRECTORY_SCHEMA,
 };
+
+function createDirectory(fileName) {
+  return new Promise((resolve, reject) => {
+    const dirName = path.dirname(fileName);
+    mkdirp(dirName, error => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve();
+    });
+  });
+}
 
 export default class FileSystemStorage {
   constructor(options) {
@@ -23,18 +35,6 @@ export default class FileSystemStorage {
 
   _createFullPath(fileName) {
     return path.join(this.baseDirectory, fileName);
-  }
-
-  _createDirectory(fileName) {
-    return new Promise((resolve, reject) => {
-      const dirName = path.dirname(fileName);
-      mkdirp(dirName, (error) => {
-        if (error) {
-          return reject(error);
-        }
-        return resolve();
-      });
-    });
   }
 
   readFile(fileName) {
@@ -65,11 +65,13 @@ export default class FileSystemStorage {
     this.logger.info(fullPath);
     return new Promise((resolve, reject) => {
       const fileStream = fs.createReadStream(fullPath);
-      fileStream.on('open', () => resolve({
-        exists: true,
-        stream: fileStream,
-      }));
-      fileStream.on('error', (error) => {
+      fileStream.on('open', () =>
+        resolve({
+          exists: true,
+          stream: fileStream,
+        }),
+      );
+      fileStream.on('error', error => {
         if (error.code === 'ENOENT') {
           this.logger.warn(`${fullPath} not found`);
           return resolve({
@@ -85,14 +87,17 @@ export default class FileSystemStorage {
   async writeFile(fileName, data) {
     const fullPath = this._createFullPath(fileName);
     this.logger.info(fullPath);
-    return this._createDirectory(fullPath).then(() => new Promise((resolve, reject) => {
-      fs.writeFile(fullPath, data, (error) => {
-        if (error) {
-          this.logger.error(error, `${fullPath} error`);
-          return reject(error);
-        }
-        return resolve();
-      });
-    }));
+    return createDirectory(fullPath).then(
+      () =>
+        new Promise((resolve, reject) => {
+          fs.writeFile(fullPath, data, error => {
+            if (error) {
+              this.logger.error(error, `${fullPath} error`);
+              return reject(error);
+            }
+            return resolve();
+          });
+        }),
+    );
   }
 }
