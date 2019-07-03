@@ -1,10 +1,9 @@
 import { readFileSync } from 'fs';
 import { has } from 'lodash';
-import bunyan from 'bunyan';
-
-import FileSystemStorage from './storage/file-system';
+import pino from 'pino';
 import HtpasswdAuthentication from './authentication/htpasswd';
 import TokensObjectSessions from './sessions/tokens-object';
+import FileSystemStorage from './storage/file-system';
 
 const options = {
   alwaysAuth: true,
@@ -27,9 +26,11 @@ const options = {
 const OVERRIDES_FILE = process.env.MPN_OVERRIDES;
 try {
   if (OVERRIDES_FILE) {
-    const overrides = JSON.parse(readFileSync(OVERRIDES_FILE, {
-      encoding: 'utf8',
-    }));
+    const overrides = JSON.parse(
+      readFileSync(OVERRIDES_FILE, {
+        encoding: 'utf8',
+      }),
+    );
     Object.assign(options, overrides);
   }
 } catch (error) {
@@ -37,35 +38,26 @@ try {
 }
 
 const environmentMappings = new Map([
-  ['PORT',
+  [
+    'PORT',
     {
       destination: 'port',
-      conversion: (value) => parseInt(value, 10),
+      conversion: value => parseInt(value, 10),
     },
   ],
 ]);
 
+// eslint-disable-next-line no-restricted-syntax
 for (const [source, { destination, conversion }] of environmentMappings) {
   if (has(process.env, source)) {
     options[destination] = conversion(process.env[source]);
   }
 }
 
-const streams = [];
-if (options.logType === 'stdout') {
-  streams.push({
-    stream: process.stdout,
-  });
-} else {
-  streams.push({
-    path: options.logType,
-  });
-}
-
-const logger = bunyan.createLogger({
-  name: 'mpn',
-  streams,
-});
+const pinoDestination = pino.destination(
+  options.logType === 'stdout' ? undefined : options.logType,
+);
+const logger = pino({ name: 'mpn' }, pinoDestination);
 
 let storage;
 if (options.storageType === 'FileSystem') {
@@ -100,6 +92,7 @@ const configuration = {
   authentication,
   sessions,
   forceHTTPS: options.forceHTTPS,
+  pinoDestination,
 };
 
 export default configuration;

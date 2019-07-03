@@ -1,13 +1,7 @@
-import Joi from 'joi';
-
-import { AUTH_STRATEGY } from './npm-token';
+import Joi from '@hapi/joi';
 import { metadataPath } from '../lib/packages';
-import {
-  ALWAYS_AUTH_SCHEMA,
-  LOGGER_SCHEMA,
-  ORIGIN_SCHEMA,
-  STORAGE_SCHEMA,
-} from '../lib/schema';
+import { ALWAYS_AUTH_SCHEMA, LOGGER_SCHEMA, ORIGIN_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
+import { AUTH_STRATEGY } from './npm-token';
 
 const NAME = 'package-metadata';
 
@@ -23,19 +17,19 @@ function createHandler({ logger: parentLogger, storage, origin }) {
     context: NAME,
   });
 
-  return async function handler(request, reply) {
+  return async function handler(request, response) {
     const packageName = request.params.name;
     logger.info(packageName);
     const fileName = metadataPath(packageName);
     const result = await storage.readFile(fileName);
     if (!result.exists) {
-      return reply.proxy(origin);
+      return response.proxy(origin);
     }
-    return reply(result.data).type('application/json');
+    return response.response(result.data).type('application/json');
   };
 }
 
-function register(server, options, next) {
+async function register(server, options) {
   Joi.assert(options, OPTIONS_SCHEMA);
 
   const route = {
@@ -49,12 +43,9 @@ function register(server, options, next) {
     };
   }
   server.route(route);
-
-  next();
 }
 
-register.attributes = {
+export default {
   name: NAME,
+  register,
 };
-
-export default register;

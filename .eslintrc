@@ -1,9 +1,11 @@
 {
   "parser": "babel-eslint",
   "extends": [
-    "airbnb-base"
+    "airbnb-base",
+    "plugin:prettier/recommended"
   ],
   "rules": {
-    "no-underscore-dangle": 0
+    "no-underscore-dangle": 0,
+    "import/prefer-default-export": 0
   }
 }

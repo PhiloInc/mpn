@@ -2,11 +2,11 @@ import { AUTH_STRATEGY } from './npm-token';
 
 const NAME = 'user-identity';
 
-async function handler(request, reply) {
-  return reply(request.auth.credentials);
+async function handler(request) {
+  return request.auth.credentials;
 }
 
-function register(server, options, next) {
+async function register(server) {
   server.route({
     method: 'GET',
     path: '/-/whoami',
@@ -15,12 +15,9 @@ function register(server, options, next) {
       auth: AUTH_STRATEGY,
     },
   });
-
-  next();
 }
 
-register.attributes = {
+export default {
   name: NAME,
+  register,
 };
-
-export default register;

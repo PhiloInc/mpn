@@ -1,8 +1,7 @@
+import Joi from '@hapi/joi';
 import path from 'path';
-import htpasswd from 'htpasswd-auth';
-import Joi from 'joi';
-
 import { LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
+import { authenticate } from './htpasswd-auth';
 
 const NAME = 'htpasswd';
 
@@ -28,6 +27,6 @@ export default class HtpasswdAuthentication {
     if (!result.exists) {
       return false;
     }
-    return htpasswd.authenticate(username, password, result.data.toString());
+    return authenticate(username, password, result.data.toString());
   }
 }
