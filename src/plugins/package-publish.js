@@ -1,8 +1,14 @@
 import Boom from '@hapi/boom';
 import Joi from '@hapi/joi';
+import * as https from 'https';
 import { has } from 'lodash';
 import { filePath, metadataPath } from '../lib/packages';
-import { FORCE_HTTPS_SCHEMA, LOGGER_SCHEMA, STORAGE_SCHEMA } from '../lib/schema';
+import {
+  FORCE_HTTPS_SCHEMA,
+  LOGGER_SCHEMA,
+  SLACK_WEB_HOOK_SCHEMA,
+  STORAGE_SCHEMA,
+} from '../lib/schema';
 import { AUTH_STRATEGY } from './npm-token';
 
 const NAME = 'package-publish';
@@ -11,9 +17,40 @@ const OPTIONS_SCHEMA = {
   logger: LOGGER_SCHEMA,
   storage: STORAGE_SCHEMA,
   forceHTTPS: FORCE_HTTPS_SCHEMA,
+  slackWebHook: SLACK_WEB_HOOK_SCHEMA,
 };
 
-function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
+function postToSlack(url, message, logger) {
+  const payload = JSON.stringify({
+    text: message,
+  });
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': payload.length,
+    },
+  };
+  const request = https.request(url, options, response => {
+    let data = '';
+    response.on('data', chunk => {
+      data += chunk;
+    });
+    response.on('end', () => {
+      logger.info(`WebHook complete ${data}`);
+    });
+  });
+
+  request.on('error', error => {
+    logger.error(`ERROR: ${error.message}`);
+  });
+
+  request.write(payload);
+  request.end();
+}
+
+function createHandler({ logger: parentLogger, storage, forceHTTPS, slackWebHook }) {
   const logger = parentLogger.child({
     context: NAME,
   });
@@ -74,6 +111,15 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS }) {
 
     const json = JSON.stringify(metadata, null, '  ');
     await storage.writeFile(metadataFileName, json);
+
+    if (slackWebHook) {
+      const message = `Package ${packageName} just published version\n${JSON.stringify(
+        metadata['dist-tags'],
+        null,
+        '  ',
+      )}`;
+      postToSlack(slackWebHook, message, logger);
+    }
     return response.response(json).type('application/json');
   };
 }

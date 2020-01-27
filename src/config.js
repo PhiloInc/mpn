@@ -21,6 +21,7 @@ const options = {
   sessionsType: 'TokensObject',
   umask: 0o0022,
   forceHTTPS: true,
+  slackWebHook: null,
 };
 
 const OVERRIDES_FILE = process.env.MPN_OVERRIDES;
@@ -93,6 +94,7 @@ const configuration = {
   sessions,
   forceHTTPS: options.forceHTTPS,
   pinoDestination,
+  slackWebHook: options.slackWebHook,
 };
 
 export default configuration;

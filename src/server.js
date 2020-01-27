@@ -61,6 +61,7 @@ const plugins = [
       logger: config.logger,
       storage: config.storage,
       forceHTTPS: config.forceHTTPS,
+      slackWebHook: config.slackWebHook,
     },
   },
   {
