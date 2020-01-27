@@ -66,7 +66,9 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS, slackWebHook
       ...request.payload,
     };
     delete metadata._attachments;
-
+    const tags = {
+      ...metadata['dist-tags'],
+    };
     // If packages should be pulled via HTTPS force URL scheme
     if (forceHTTPS) {
       Object.keys(metadata.versions).forEach(key => {
@@ -114,7 +116,7 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS, slackWebHook
 
     if (slackWebHook) {
       const message = `Package ${packageName} just published version\n${JSON.stringify(
-        metadata['dist-tags'],
+        tags,
         null,
         '  ',
       )}`;
