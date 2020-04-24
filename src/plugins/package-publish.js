@@ -114,7 +114,7 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS, slackWebHook
     const json = JSON.stringify(metadata, null, '  ');
     await storage.writeFile(metadataFileName, json);
 
-    if (slackWebHook) {
+    if (slackWebHook && Object.keys(tags).includes('latest')) {
       const message = `Package ${packageName} just published version\n${JSON.stringify(
         tags,
         null,
