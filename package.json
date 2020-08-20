@@ -51,7 +51,7 @@
     "@hapi/joi": "^15.1.0",
     "apache-crypt": "^1.2.1",
     "apache-md5": "^1.1.2",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "debug": "^4.1.1",
     "hapi-pino": "^6.0.1",
     "lodash": "^4.17.11",
