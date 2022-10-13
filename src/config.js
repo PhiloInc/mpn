@@ -21,6 +21,7 @@ const options = {
   sessionsType: 'TokensObject',
   umask: 0o0022,
   forceHTTPS: true,
+  forceHTTPSHost: null,
   slackWebHook: null,
 };
 
@@ -93,6 +94,7 @@ const configuration = {
   authentication,
   sessions,
   forceHTTPS: options.forceHTTPS,
+  forceHTTPSHost: options.forceHTTPSHost,
   pinoDestination,
   slackWebHook: options.slackWebHook,
 };

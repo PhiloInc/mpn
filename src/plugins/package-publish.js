@@ -5,6 +5,7 @@ import { has } from 'lodash';
 import { filePath, metadataPath } from '../lib/packages';
 import {
   FORCE_HTTPS_SCHEMA,
+  FORCE_HTTPS_HOST_SCHEMA,
   LOGGER_SCHEMA,
   SLACK_WEB_HOOK_SCHEMA,
   STORAGE_SCHEMA,
@@ -17,6 +18,7 @@ const OPTIONS_SCHEMA = {
   logger: LOGGER_SCHEMA,
   storage: STORAGE_SCHEMA,
   forceHTTPS: FORCE_HTTPS_SCHEMA,
+  forceHTTPSHost: FORCE_HTTPS_HOST_SCHEMA,
   slackWebHook: SLACK_WEB_HOOK_SCHEMA,
 };
 
@@ -50,7 +52,13 @@ function postToSlack(url, message, logger) {
   request.end();
 }
 
-function createHandler({ logger: parentLogger, storage, forceHTTPS, slackWebHook }) {
+function createHandler({
+  logger: parentLogger,
+  storage,
+  forceHTTPS,
+  forceHTTPSHost,
+  slackWebHook,
+}) {
   const logger = parentLogger.child({
     context: NAME,
   });
@@ -69,12 +77,22 @@ function createHandler({ logger: parentLogger, storage, forceHTTPS, slackWebHook
     const tags = {
       ...metadata['dist-tags'],
     };
+    if (tags.latest && tags.latest.indexOf('-') !== -1) {
+      logger.error(`${packageName} latest includes - ${tags.latest}`);
+      throw Boom.badRequest(`${packageName} latest version should not include - ${tags.latest}`);
+    }
     // If packages should be pulled via HTTPS force URL scheme
     if (forceHTTPS) {
       Object.keys(metadata.versions).forEach(key => {
         const versionData = metadata.versions[key];
         if (versionData.dist && versionData.dist.tarball) {
           versionData.dist.tarball = versionData.dist.tarball.replace(/^http:/, 'https:');
+          if (forceHTTPSHost) {
+            versionData.dist.tarball = versionData.dist.tarball.replace(
+              'registry.yarnpkg.com',
+              forceHTTPSHost,
+            );
+          }
         }
       });
     }
@@ -135,6 +153,9 @@ async function register(server, options) {
     handler: createHandler(options),
     config: {
       auth: AUTH_STRATEGY,
+      payload: {
+        maxBytes: 10485760,
+      },
       validate: {
         payload: {
           _id: Joi.string().required(),

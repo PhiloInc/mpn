@@ -2,6 +2,8 @@ import Joi from '@hapi/joi';
 
 export const FORCE_HTTPS_SCHEMA = Joi.boolean().required();
 
+export const FORCE_HTTPS_HOST_SCHEMA = Joi.string().optional();
+
 export const SLACK_WEB_HOOK_SCHEMA = Joi.string().optional();
 
 export const ALWAYS_AUTH_SCHEMA = Joi.boolean().required();
