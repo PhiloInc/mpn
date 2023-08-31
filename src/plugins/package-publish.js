@@ -154,7 +154,7 @@ async function register(server, options) {
     config: {
       auth: AUTH_STRATEGY,
       payload: {
-        maxBytes: 10485760,
+        maxBytes: 31457280,
       },
       validate: {
         payload: {
